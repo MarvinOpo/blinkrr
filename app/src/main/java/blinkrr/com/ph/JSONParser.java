@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.location.Location;
 import android.support.v4.util.LruCache;
+import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
@@ -66,9 +67,7 @@ public class JSONParser {
     }
 
     public static synchronized JSONParser getInstance(Context context) {
-        if (parser == null) {
-            parser = new JSONParser(context);
-        }
+        parser = new JSONParser(context);
         return parser;
     }
 
@@ -126,7 +125,7 @@ public class JSONParser {
                 }, new Response.ErrorListener() {
             @Override
             public void onErrorResponse(VolleyError error) {
-                //VolleyLog.e("ATTEMPTLOGIN", error.getMessage());
+                VolleyLog.e("ATTEMPTLOGIN", error.getMessage());
             }
         });
         mRequestQueue.add(jsonArrayRequest);
@@ -170,7 +169,7 @@ public class JSONParser {
                 }, new Response.ErrorListener() {
             @Override
             public void onErrorResponse(VolleyError error) {
-                //VolleyLog.e("ATTEMPTLOGIN", error.getMessage());
+                VolleyLog.e("GETPRODUCTSBYID", error.getMessage());
             }
         });
         mRequestQueue.add(jsonArrayRequest);
@@ -207,7 +206,7 @@ public class JSONParser {
                 }, new Response.ErrorListener() {
             @Override
             public void onErrorResponse(VolleyError error) {
-                //VolleyLog.e("ATTEMPTLOGIN", error.getMessage());
+                VolleyLog.e("GETSERVICESBYSHOPID", error.getMessage());
             }
         });
         mRequestQueue.add(jsonArrayRequest);
@@ -220,6 +219,7 @@ public class JSONParser {
                     public void onResponse(JSONArray response) {
                         try {
                             for(int i = 0; i< response.length(); i++){
+                                Log.e("response", response.toString());
                                 JSONObject obj = response.getJSONObject(i);
 
                                 String status = obj.getString("status");
@@ -231,7 +231,36 @@ public class JSONParser {
                                     String start_date = obj.getString("start_date");
                                     String end_date = obj.getString("end_date");
 
-                                    ReservedItemsFragment.mList.add(new ReservedItem(res_id, optprod_id, patient_id, start_date, end_date));
+                                    JSONObject obj1 = obj.getJSONObject("product");
+                                    String prod_id = obj1.getString("prod_id");
+                                    String optshop_id = obj1.getString("opt_id");
+                                    String type_id = obj1.getString("type_id");
+                                    String model = obj1.getString("model");
+                                    String description = obj1.getString("description");
+                                    String brand = obj1.getString("brand");
+                                    String qty = obj1.getString("qty");
+                                    String reorder = obj1.getString("reorder");
+                                    String discount = obj1.getString("discount");
+                                    String price = obj1.getString("price");
+                                    String image = obj1.getString("optprod_img");
+                                    String prod_status = obj1.getString("status");
+
+                                    Products prod = new Products(prod_id, optshop_id, type_id,
+                                            model, description, brand, qty, reorder, discount, price, image, prod_status);
+
+                                    JSONObject obj2 = obj.getJSONObject("opt_shop");
+                                    String id = obj2.getString("id");
+                                    String name = obj2.getString("name");
+                                    String address = obj2.getString("address");
+                                    String email = obj2.getString("email");
+                                    String phone = obj2.getString("phone");
+                                    String optshop_image = obj2.getString("image");
+                                    String term = obj2.getString("term");
+
+                                    OpticalShop opt_shop = new OpticalShop(id, name, address, email, phone, optshop_image, term);
+
+                                    ReservedItemsFragment.mList.add(new ReservedItem(res_id, optprod_id, patient_id, start_date,
+                                            end_date, prod, opt_shop));
                                 }
                             }
                         } catch (JSONException e) {
@@ -241,7 +270,7 @@ public class JSONParser {
                 }, new Response.ErrorListener() {
             @Override
             public void onErrorResponse(VolleyError error) {
-                //VolleyLog.e("ATTEMPTLOGIN", error.getMessage());
+                VolleyLog.e("GETRESERVEDITEMSBYID", error.getMessage());
             }
         });
         mRequestQueue.add(jsonArrayRequest);
@@ -254,11 +283,17 @@ public class JSONParser {
                     public void onResponse(JSONArray response) {
                         if(response.length() == 0) Toast.makeText(context, "Unable to reserve! Please check your Reserved Items!",
                                 Toast.LENGTH_LONG).show();
+                        else{
+                            Toast.makeText(context, "Successfully Reserved Item!",
+                                    Toast.LENGTH_LONG).show();
+                            DrawerActivity.fm.popBackStackImmediate();
+                            OpticalDetailsFragment.refreshPage();
+                        }
                     }
                 }, new Response.ErrorListener() {
             @Override
             public void onErrorResponse(VolleyError error) {
-                //VolleyLog.e("ATTEMPTLOGIN", error.getMessage());
+                VolleyLog.e("RESERVEPRODUCT", error.getMessage());
             }
         });
         mRequestQueue.add(jsonArrayRequest);
@@ -285,8 +320,10 @@ public class JSONParser {
                                         getImageUrl(obj.getString("image"), lat, lng, name);
                                     }
 
+                                    Log.e("mapping damn it", i+"");
+
                                     if(i == response.length()-1) MapsActivity.pd.dismiss();
-                                }else{
+                                }else if(context instanceof DrawerActivity){
                                     String id = obj.getString("id");
                                     String address = obj.getString("address");
                                     String email = obj.getString("email");
@@ -312,18 +349,20 @@ public class JSONParser {
             @Override
             public void onErrorResponse(VolleyError error) {
                 VolleyLog.e("GETALLOPTICALSHOP", error.getMessage());
-                getAllOpticalShops("http://192.168.0.160/Mark/blinkrrApi.php", location);
+                getAllOpticalShops(Constants.getAllOpticalShops, location);
             }
         });
         mRequestQueue.add(jsonArrayRequest);
     }
 
-    public void getImageUrl(String url, final double lat, final double lng, final String name){
+    public void getImageUrl(final String url, final double lat, final double lng, final String name){
         ImageRequest imageRequest = new ImageRequest(url,
                 new Response.Listener<Bitmap>() {
                     @Override
                     public void onResponse(Bitmap bitmap) {
-                        if(context instanceof  MapsActivity){
+                        if(context instanceof MapsActivity && name.equalsIgnoreCase("MyLocationImage")){
+                            MapsActivity.bitmap = bitmap;
+                        }else if(context instanceof  MapsActivity){
                             View opticalMarker = MapsActivity.inflater.inflate(R.layout.custom_marker, null);
                             CircleImageView civ = (CircleImageView) opticalMarker.findViewById(R.id.marker_image);
                             ImageView iv = (ImageView) opticalMarker.findViewById(R.id.marker_body);

@@ -1,8 +1,5 @@
 package blinkrr.com.ph;
 
-/**
- * Created by NMN on 1/14/2016.
- */
 public class Constants {
     public static String login = "http://192.168.0.160/Mark/blinkrrApi/login.php";
 

@@ -123,7 +123,7 @@ public class RVadapter extends RecyclerView.Adapter<RVadapter.CardViewHolder> {
         int size = 0;
 
         if(opt_shop != null && activity.equalsIgnoreCase("HomeFragment")) size = opt_shop.size()-(opt_shop.size()/2);
-        if(opt_shop != null && activity.equalsIgnoreCase("OpticalDetails")) size = prod.size();
+        if(prod != null && activity.equalsIgnoreCase("OpticalDetails")) size = prod.size();
 
         return size;
     }

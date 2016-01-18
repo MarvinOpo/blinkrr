@@ -1,19 +1,25 @@
 package blinkrr.com.ph;
 
+import android.app.AlertDialog;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.Spinner;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.android.volley.toolbox.ImageLoader;
 import com.android.volley.toolbox.NetworkImageView;
 
 import org.json.JSONException;
 import org.json.JSONObject;
+
+import java.util.ArrayList;
 
 public class ProductDetailsFragment extends Fragment{
 
@@ -48,16 +54,63 @@ public class ProductDetailsFragment extends Fragment{
         reserve.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                try {
-                    JSONObject request = new JSONObject();
-                    request.accumulate("patient_id", DrawerActivity.p.id);
-                    request.accumulate("optprod_id", p.prod_id);
-                    request.accumulate("term", "+"+OpticalDetailsFragment.opticalShop.term+" days");
+                View view = DrawerActivity.inflater.inflate(R.layout.reserve_dialog, null);
+                final Spinner sp = (Spinner) view.findViewById(R.id.reserve_dialog);
+                TextView tv = (TextView) view.findViewById(R.id.reserve_term);
 
-                    JSONParser.getInstance(getContext()).reserveProduct(request, Constants.reserveProduct);
+                ArrayList list = new ArrayList<>();
+
+                try {
+                    JSONObject term = new JSONObject(OpticalDetailsFragment.opticalShop.term);
+                    int max = term.getInt("max_reservation");
+                    int duration = term.getInt("duration");
+                    tv.setText("The company gives " + duration + " day/s duration for the reservation of this item and a maximum of " +
+                            max + "pcs. per transaction");
+
+                    for (int i = 1; i <= max; i++) {
+                        list.add(i);
+                    }
+
+                    ArrayAdapter adapter = new ArrayAdapter(getContext(), android.R.layout.simple_list_item_1, list);
+                    adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+                    sp.setAdapter(adapter);
+
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
+
+                AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
+                builder.setIcon(R.mipmap.ic_launcher);
+                builder.setView(view);
+                builder.setTitle("Product Reservation");
+                builder.setNegativeButton("Back", null);
+                builder.setPositiveButton("Reserve", null);
+                final AlertDialog alertDialog = builder.create();
+                alertDialog.show();
+
+                alertDialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        if (Integer.parseInt(p.qty) > Integer.parseInt(sp.getSelectedItem().toString())) {
+                            try {
+                                JSONObject request = new JSONObject();
+                                request.accumulate("patient_id", DrawerActivity.p.id);
+                                request.accumulate("optprod_id", p.prod_id);
+
+                                JSONObject term = new JSONObject(OpticalDetailsFragment.opticalShop.term);
+                                request.accumulate("term", "+" + term.getString("duration") + " days");
+                                request.accumulate("reserve_qty", sp.getSelectedItem().toString());
+
+                                JSONParser.getInstance(getContext()).reserveProduct(request, Constants.reserveProduct);
+                            } catch (JSONException e) {
+                                e.printStackTrace();
+                            }
+                        } else Toast.makeText(getContext(), "Insufficient remaining stack!", Toast.LENGTH_LONG).show();
+
+                        alertDialog.dismiss();
+                    }
+                });
+
             }
         });
         return view;

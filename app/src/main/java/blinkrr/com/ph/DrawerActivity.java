@@ -13,6 +13,7 @@ import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -22,15 +23,18 @@ import android.widget.TextView;
 public class DrawerActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
 
     public static ImageView nav_image;
+    public static FragmentManager fm;
+    public static LayoutInflater inflater;
+    public static Patient p;
 
     DrawerLayout drawer;
     NavigationView navigationView;
-    public static Patient p;
     TextView nav_name, nav_info;
 
     FragmentTransaction ft;
-    public static FragmentManager fm;
     HomeFragment hf = new HomeFragment();
+    ReservedItemsFragment rif = new ReservedItemsFragment();
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -38,6 +42,7 @@ public class DrawerActivity extends AppCompatActivity implements NavigationView.
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
+        inflater = getLayoutInflater();
         try{
             Bundle b = this.getIntent().getExtras();
             String id = b.getString("id");
@@ -133,10 +138,16 @@ public class DrawerActivity extends AppCompatActivity implements NavigationView.
         int id = item.getItemId();
 
         if (id == R.id.nav_home) {
-            // Handle the camera action
+            fm.popBackStackImmediate();
+            ft = fm.beginTransaction();
+            ft.replace(R.id.fragment_container, hf).commit();
         } else if (id == R.id.nav_map) {
             Intent intent = new Intent(this, MapsActivity.class);
             this.startActivity(intent);
+        } else if(id == R.id.nav_reserve){
+            fm.popBackStackImmediate();
+            ft = fm.beginTransaction();
+            ft.replace(R.id.fragment_container, rif).commit();
         }
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);

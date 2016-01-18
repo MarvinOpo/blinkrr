@@ -38,6 +38,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     public static GoogleMap mMap;
     public static MarkerOptions marker;
     public static ProgressDialog pd;
+    public static Bitmap bitmap;
 
     private GoogleApiClient mGoogleApiClient;
     private LocationRequest mLocationRequest;
@@ -55,8 +56,11 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         super.onCreate(savedInstanceState);
        setContentView(R.layout.fragment_maps);
 
+        JSONParser parser = new JSONParser(this);
+        parser.getImageUrl(DrawerActivity.p.image, 0, 0, "MyLocationImage");
+
         inflater = getLayoutInflater();
-        pd = ProgressDialog.show(this,"Map","Loading Map, Please wait",false,false);
+        pd = ProgressDialog.show(this,"Map","Loading Map, Please wait",false,true);
         // Obtain the SupportMapFragment and get notified when the map is ready to be used.
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
@@ -64,8 +68,6 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
 
         view = getLayoutInflater().inflate(R.layout.custom_marker, null);
         civ = (CircleImageView) view.findViewById(R.id.marker_image);
-
-        civ.setImageDrawable(getResources().getDrawable(R.drawable.default_profile));
 
         mGoogleApiClient = new GoogleApiClient.Builder(this)
                 .addApi(LocationServices.API).addConnectionCallbacks(this)
@@ -125,6 +127,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
 
         if(myLocation != null) myLocation.remove();
 
+        civ.setImageBitmap(bitmap);
         marker = new MarkerOptions().position(new LatLng(lat, lng)).title("My Location");
         marker.icon(BitmapDescriptorFactory.fromBitmap(createDrawableFromView(this, view)));
         myLocation = mMap.addMarker(marker);

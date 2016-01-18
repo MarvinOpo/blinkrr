@@ -1,5 +1,6 @@
 package blinkrr.com.ph;
 
+import android.content.Context;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
@@ -29,6 +30,7 @@ public class OpticalDetailsFragment extends Fragment {
 
     public static OpticalShop opticalShop;
 
+    static Context context;
     NetworkImageView opt_image;
     TextView opt_name, opt_add, opt_phone, opt_email;
 
@@ -36,6 +38,7 @@ public class OpticalDetailsFragment extends Fragment {
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+        context = getContext();
         try {
             mList.clear();
             services.removeAllViews();
@@ -47,8 +50,8 @@ public class OpticalDetailsFragment extends Fragment {
             JSONObject request = new JSONObject();
             request.accumulate("id", opticalShop.id);
 
-            JSONParser.getInstance(getContext()).getProductsByShopId(request, Constants.getProductsByShopId);
-            JSONParser.getInstance(getContext()).getServicesByShopId(request, Constants.getServicesByShopId);
+            JSONParser.getInstance(context).getProductsByShopId(request, Constants.getProductsByShopId);
+            JSONParser.getInstance(context).getServicesByShopId(request, Constants.getServicesByShopId);
         } catch (JSONException e) {
             e.printStackTrace();
         }
@@ -83,5 +86,19 @@ public class OpticalDetailsFragment extends Fragment {
         opt_phone.setText(opticalShop.phone);
         opt_email.setText(opticalShop.email);
         return view;
+    }
+
+    public static void refreshPage(){
+        try{
+            mList.clear();
+            services.removeAllViews();
+            JSONObject request = new JSONObject();
+            request.accumulate("id", opticalShop.id);
+
+            JSONParser.getInstance(context).getProductsByShopId(request, Constants.getProductsByShopId);
+            JSONParser.getInstance(context).getServicesByShopId(request, Constants.getServicesByShopId);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
     }
 }
