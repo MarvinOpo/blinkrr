@@ -171,7 +171,7 @@ public class JSONParser {
                                 String reorder = obj.getString("reorder");
                                 String discount = obj.getString("discount");
                                 String price = obj.getString("price");
-                                String image = obj.getString("optprod_img");
+                                String image = Constants.path+obj.getString("optprod_img");
                                 String status = obj.getString("status");
 
                                 if(status.equalsIgnoreCase("Available")){
@@ -262,7 +262,7 @@ public class JSONParser {
 
                                 String status = obj.getString("status");
 
-                                if(status.equalsIgnoreCase("active")){
+                                if(status.equalsIgnoreCase("pending")){
                                     String res_id = obj.getString("reserve_id");
                                     String optprod_id = obj.getString("optprod_id");
                                     String patient_id = obj.getString("patient_id");
@@ -281,7 +281,7 @@ public class JSONParser {
                                     String reorder = obj1.getString("reorder");
                                     String discount = obj1.getString("discount");
                                     String price = obj1.getString("price");
-                                    String image = obj1.getString("optprod_img");
+                                    String image = Constants.path+obj1.getString("optprod_img");
                                     String prod_status = obj1.getString("status");
 
                                     Products prod = new Products(prod_id, optshop_id, type_id,
@@ -293,7 +293,7 @@ public class JSONParser {
                                     String address = obj2.getString("address");
                                     String email = obj2.getString("email");
                                     String phone = obj2.getString("phone");
-                                    String optshop_image = obj2.getString("image");
+                                    String optshop_image = Constants.path+obj2.getString("image");
                                     String term = obj2.getString("term");
 
                                     OpticalShop opt_shop = new OpticalShop(id, name, address, email, phone, optshop_image, term);
@@ -345,7 +345,7 @@ public class JSONParser {
                                     String address = obj2.getString("address");
                                     String email = obj2.getString("email");
                                     String phone = obj2.getString("phone");
-                                    String optshop_image = obj2.getString("image");
+                                    String optshop_image = Constants.path+obj2.getString("image");
                                     String term = obj2.getString("term");
 
                                     OpticalShop opt_shop = new OpticalShop(id, name, address, email, phone, optshop_image, term);
@@ -425,7 +425,7 @@ public class JSONParser {
                                     String address = obj.getString("address");
                                     String email = obj.getString("email");
                                     String phone = obj.getString("phone");
-                                    String image = obj.getString("image");
+                                    String image = Constants.path+obj.getString("image");
                                     String term = obj.getString("term");
 
                                     HomeFragment.mList.add(new OpticalShop(id, name, address, email, phone, image, term));
@@ -453,7 +453,7 @@ public class JSONParser {
     }
 
     public void getImageUrl(final String url, final double lat, final double lng, final String name){
-        ImageRequest imageRequest = new ImageRequest(url,
+        ImageRequest imageRequest = new ImageRequest(Constants.path+url,
                 new Response.Listener<Bitmap>() {
                     @Override
                     public void onResponse(Bitmap bitmap) {

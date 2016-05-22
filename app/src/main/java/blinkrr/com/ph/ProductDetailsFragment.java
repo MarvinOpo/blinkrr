@@ -9,6 +9,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -55,29 +56,11 @@ public class ProductDetailsFragment extends Fragment{
             @Override
             public void onClick(View v) {
                 View view = DrawerActivity.inflater.inflate(R.layout.reserve_dialog, null);
-                final Spinner sp = (Spinner) view.findViewById(R.id.reserve_dialog);
+                final EditText sp = (EditText) view.findViewById(R.id.reserve_dialog);
                 TextView tv = (TextView) view.findViewById(R.id.reserve_term);
 
-                ArrayList list = new ArrayList<>();
-
-                try {
-                    JSONObject term = new JSONObject(OpticalDetailsFragment.opticalShop.term);
-                    int max = term.getInt("max_reservation");
-                    int duration = term.getInt("duration");
-                    tv.setText("The company gives " + duration + " day/s duration for the reservation of this item and a maximum of " +
-                            max + "pcs. per transaction");
-
-                    for (int i = 1; i <= max; i++) {
-                        list.add(i);
-                    }
-
-                    ArrayAdapter adapter = new ArrayAdapter(getContext(), android.R.layout.simple_list_item_1, list);
-                    adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-                    sp.setAdapter(adapter);
-
-                } catch (JSONException e) {
-                    e.printStackTrace();
-                }
+                int duration = Integer.parseInt(OpticalDetailsFragment.opticalShop.term);
+                tv.setText("The company gives " + duration + " day/s duration for the reservation of this item");
 
                 AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
                 builder.setIcon(R.mipmap.ic_launcher);
@@ -91,21 +74,19 @@ public class ProductDetailsFragment extends Fragment{
                 alertDialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        if (Integer.parseInt(p.qty) > Integer.parseInt(sp.getSelectedItem().toString())) {
+                        if (Integer.parseInt(p.qty) >= Integer.parseInt(sp.getText().toString())) {
                             try {
                                 JSONObject request = new JSONObject();
                                 request.accumulate("patient_id", DrawerActivity.p.id);
                                 request.accumulate("optprod_id", p.prod_id);
-
-                                JSONObject term = new JSONObject(OpticalDetailsFragment.opticalShop.term);
-                                request.accumulate("term", "+" + term.getString("duration") + " days");
-                                request.accumulate("reserve_qty", sp.getSelectedItem().toString());
+                                request.accumulate("term", "+" + Integer.parseInt(OpticalDetailsFragment.opticalShop.term) + " days");
+                                request.accumulate("reserve_qty", sp.getText().toString());
 
                                 JSONParser.getInstance(getContext()).reserveProduct(request, Constants.reserveProduct);
                             } catch (JSONException e) {
                                 e.printStackTrace();
                             }
-                        } else Toast.makeText(getContext(), "Insufficient remaining stack!", Toast.LENGTH_LONG).show();
+                        } else Toast.makeText(getContext(), "Insufficient! Remaining stack = "+p.qty, Toast.LENGTH_LONG).show();
 
                         alertDialog.dismiss();
                     }
