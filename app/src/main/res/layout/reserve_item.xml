@@ -12,7 +12,7 @@
         android:gravity="end">
 
         <ImageView
-            android:id="@+id/pending_decline_btn"
+            android:id="@+id/reserve_decline_btn"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:src="@drawable/decline"/>
@@ -26,7 +26,7 @@
         android:padding="5dp">
 
         <com.android.volley.toolbox.NetworkImageView
-            android:id="@+id/pending_image"
+            android:id="@+id/reserve_image"
             android:layout_width="100dp"
             android:layout_height="100dp"
             android:src="@drawable/default_profile"/>
@@ -39,7 +39,7 @@
             android:paddingLeft="10dp">
 
             <TextView
-                android:id="@+id/pending_user_name"
+                android:id="@+id/reserve_optName"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:textAppearance="?android:attr/textAppearanceMedium"
@@ -47,11 +47,19 @@
                 android:textStyle="bold"/>
 
             <TextView
-                android:id="@+id/pending_gender_age"
+                android:id="@+id/reserve_brand"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:textAppearance="?android:attr/textAppearanceSmall"
-                android:text="Gender, Age"
+                android:text="Brand: Sample"
+                android:textStyle="italic"/>
+
+            <TextView
+                android:id="@+id/reserve_qty"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textAppearance="?android:attr/textAppearanceSmall"
+                android:text="Qty Reserve: 10"
                 android:textStyle="italic"/>
 
             <LinearLayout
@@ -63,11 +71,11 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:textAppearance="?android:attr/textAppearanceSmall"
-                    android:text="Date Booked: "
+                    android:text="Expiration Date: "
                     android:textStyle="italic"/>
 
                 <TextView
-                    android:id="@+id/pending_date"
+                    android:id="@+id/reserve_date"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:textAppearance="?android:attr/textAppearanceSmall"
@@ -84,16 +92,16 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:textAppearance="?android:attr/textAppearanceSmall"
-                    android:text="Tour Booked: "
+                    android:text="Total Price: "
                     android:textStyle="italic"/>
 
                 <TextView
-                    android:id="@+id/pending_tour"
+                    android:id="@+id/reserve_price"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:textColor="#07c"
                     android:textAppearance="?android:attr/textAppearanceSmall"
-                    android:text="Sanova Beach"
+                    android:text="1000"
                     android:textStyle="italic"/>
             </LinearLayout>
         </LinearLayout>

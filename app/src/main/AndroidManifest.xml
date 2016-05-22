@@ -15,13 +15,13 @@
 
     <application
         android:allowBackup="true"
-        android:icon="@mipmap/ic_launcher"
+        android:icon="@drawable/logo"
         android:label="@string/app_name"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
         <meta-data
             android:name="com.google.android.geo.API_KEY"
-            android:value="AIzaSyBd-gCQj3QgdwtWgXWyt84kBLj4RNNpkfw" />
+            android:value="AIzaSyDcRRO381_wbIqIrX0J31ll9qXMsKtLzgo" />
         <activity
             android:name=".DrawerActivity"
             android:label="@string/app_name"

@@ -5,10 +5,14 @@ import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.location.Location;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v4.util.LruCache;
 import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.CheckBox;
+import android.widget.CompoundButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -27,6 +31,7 @@ import com.android.volley.toolbox.HurlStack;
 import com.android.volley.toolbox.ImageLoader;
 import com.android.volley.toolbox.ImageRequest;
 import com.android.volley.toolbox.JsonArrayRequest;
+import com.android.volley.toolbox.JsonObjectRequest;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
@@ -131,6 +136,23 @@ public class JSONParser {
         mRequestQueue.add(jsonArrayRequest);
     }
 
+    public void appointmentRequest(final JSONObject request, final String url){
+        JsonArrayRequest jsonArrayRequest = new JsonArrayRequest(Request.Method.POST, url, request,
+                new Response.Listener<JSONArray>() {
+                    @Override
+                    public void onResponse(JSONArray response) {
+                        Toast.makeText(context, "Successful request!", Toast.LENGTH_LONG).show();
+                    }
+                }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                VolleyLog.e("APPOINTMENTREQUEST", error.getMessage());
+                appointmentRequest(request, url);
+            }
+        });
+        mRequestQueue.add(jsonArrayRequest);
+    }
+
     public void getProductsByShopId(final JSONObject request, String url){
         JsonArrayRequest jsonArrayRequest = new JsonArrayRequest(Request.Method.POST, url, request,
                 new Response.Listener<JSONArray>() {
@@ -190,13 +212,29 @@ public class JSONParser {
                                 String status = obj.getString("status");
 
                                 if(status.equalsIgnoreCase("active")){
-                                    TextView tv = new TextView(context);
-                                    tv.setPadding(10,10,10,10);
+                                    CheckBox tv = new CheckBox(context);
+                                    //tv.setPadding(10,10,10,10);
                                     tv.setLayoutParams(params);
                                     tv.setText(name);
                                     tv.setTextSize(18);
 
+                                    OpticalDetailsFragment.service_list.add(tv);
                                     OpticalDetailsFragment.services.addView(tv);
+
+                                    tv.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+                                        @Override
+                                        public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                                            for (int i = 0; i < OpticalDetailsFragment.service_list.size(); i++) {
+                                                if (OpticalDetailsFragment.service_list.get(i).isChecked()) {
+                                                    OpticalDetailsFragment.add_appointment.setVisibility(View.VISIBLE);
+                                                    OpticalDetailsFragment.scroll.fullScroll(View.FOCUS_DOWN);
+                                                    break;
+                                                } else {
+                                                    OpticalDetailsFragment.add_appointment.setVisibility(View.INVISIBLE);
+                                                }
+                                            }
+                                        }
+                                    });
                                 }
                             }
                         } catch (JSONException e) {
@@ -212,7 +250,7 @@ public class JSONParser {
         mRequestQueue.add(jsonArrayRequest);
     }
 
-    public void getReserveItemsById(final JSONObject request, String url){
+    public void getReserveItemsById(final JSONObject request, final String url){
         JsonArrayRequest jsonArrayRequest = new JsonArrayRequest(Request.Method.POST, url, request,
                 new Response.Listener<JSONArray>() {
                     @Override
@@ -230,6 +268,7 @@ public class JSONParser {
                                     String patient_id = obj.getString("patient_id");
                                     String start_date = obj.getString("start_date");
                                     String end_date = obj.getString("end_date");
+                                    String res_qty = obj.getString("qty");
 
                                     JSONObject obj1 = obj.getJSONObject("product");
                                     String prod_id = obj1.getString("prod_id");
@@ -260,7 +299,12 @@ public class JSONParser {
                                     OpticalShop opt_shop = new OpticalShop(id, name, address, email, phone, optshop_image, term);
 
                                     ReservedItemsFragment.mList.add(new ReservedItem(res_id, optprod_id, patient_id, start_date,
-                                            end_date, prod, opt_shop));
+                                            end_date, res_qty, prod, opt_shop));
+                                }
+
+                                if(i == response.length()-1){
+                                    ReservedItemsFragment.adapter = new RVadapter(context, "ReserveFragment", ReservedItemsFragment.mList);
+                                    ReservedItemsFragment.rv.setAdapter(ReservedItemsFragment.adapter);
                                 }
                             }
                         } catch (JSONException e) {
@@ -271,6 +315,59 @@ public class JSONParser {
             @Override
             public void onErrorResponse(VolleyError error) {
                 VolleyLog.e("GETRESERVEDITEMSBYID", error.getMessage());
+                getReserveItemsById(request, url);
+            }
+        });
+        mRequestQueue.add(jsonArrayRequest);
+    }
+
+    public void getAppointmentsById(final JSONObject request, final String url){
+        JsonArrayRequest jsonArrayRequest = new JsonArrayRequest(Request.Method.POST, url, request,
+                new Response.Listener<JSONArray>() {
+                    @Override
+                    public void onResponse(JSONArray response) {
+                        try {
+                            for(int i = 0; i< response.length(); i++){
+                                Log.e("response", response.toString());
+                                JSONObject obj = response.getJSONObject(i);
+
+                                String status = obj.getString("status");
+
+                                if(!status.equalsIgnoreCase("cancelled")){
+                                    String app_id = obj.getString("app_id");
+                                    String app_date = obj.getString("app_date");
+                                    String app_time = obj.getString("app_time");
+                                    String services = obj.getString("services");
+
+                                    JSONObject obj2 = obj.getJSONObject("opt_shop");
+                                    String id = obj2.getString("id");
+                                    String name = obj2.getString("name");
+                                    String address = obj2.getString("address");
+                                    String email = obj2.getString("email");
+                                    String phone = obj2.getString("phone");
+                                    String optshop_image = obj2.getString("image");
+                                    String term = obj2.getString("term");
+
+                                    OpticalShop opt_shop = new OpticalShop(id, name, address, email, phone, optshop_image, term);
+
+                                    AppointmentFragment.mList.add(new Appointment(app_id, services, app_date, app_time,
+                                            status, opt_shop));
+                                }
+
+                                if(i == response.length()-1){
+                                    AppointmentFragment.adapter = new RVadapter(context, "AppointmentFragment", null,
+                                            AppointmentFragment.mList, null);
+                                    AppointmentFragment.rv.setAdapter(AppointmentFragment.adapter);
+                                }
+                            }
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                VolleyLog.e("GETAPPOINTMENTSBYID", error.getMessage());
             }
         });
         mRequestQueue.add(jsonArrayRequest);
@@ -383,5 +480,43 @@ public class JSONParser {
                     }
                 });
         mRequestQueue.add(imageRequest);
+    }
+
+    public void deleteReservation(JSONObject request, String url){
+        JsonArrayRequest jsonArrayRequest = new JsonArrayRequest(Request.Method.POST, url, request,
+                new Response.Listener<JSONArray>() {
+                    @Override
+                    public void onResponse(JSONArray response) {
+                        ReservedItemsFragment rif = new ReservedItemsFragment();
+                        DrawerActivity.fm.popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE);
+                        DrawerActivity.ft = DrawerActivity.fm.beginTransaction();
+                        DrawerActivity.ft.replace(R.id.fragment_container, rif).commit();
+                    }
+                }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                VolleyLog.e("DELETERESERVATION", error.getMessage());
+            }
+        });
+        mRequestQueue.add(jsonArrayRequest);
+    }
+
+    public void cancelAppointment(JSONObject request, String url){
+        JsonArrayRequest jsonArrayRequest = new JsonArrayRequest(Request.Method.POST, url, request,
+                new Response.Listener<JSONArray>() {
+                    @Override
+                    public void onResponse(JSONArray response) {
+                        AppointmentFragment af = new AppointmentFragment();
+                        DrawerActivity.fm.popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE);
+                        DrawerActivity.ft = DrawerActivity.fm.beginTransaction();
+                        DrawerActivity.ft.replace(R.id.fragment_container, af).commit();
+                    }
+                }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                VolleyLog.e("CANCELAPPOINTMENT", error.getMessage());
+            }
+        });
+        mRequestQueue.add(jsonArrayRequest);
     }
 }

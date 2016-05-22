@@ -26,13 +26,14 @@ public class DrawerActivity extends AppCompatActivity implements NavigationView.
     public static FragmentManager fm;
     public static LayoutInflater inflater;
     public static Patient p;
+    public static FragmentTransaction ft;
 
     DrawerLayout drawer;
     NavigationView navigationView;
     TextView nav_name, nav_info;
 
-    FragmentTransaction ft;
     HomeFragment hf = new HomeFragment();
+    AppointmentFragment af = new AppointmentFragment();
     ReservedItemsFragment rif = new ReservedItemsFragment();
 
     @Override
@@ -142,12 +143,21 @@ public class DrawerActivity extends AppCompatActivity implements NavigationView.
             ft = fm.beginTransaction();
             ft.replace(R.id.fragment_container, hf).commit();
         } else if (id == R.id.nav_map) {
+            fm.popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE);
             Intent intent = new Intent(this, MapsActivity.class);
             this.startActivity(intent);
-        } else if(id == R.id.nav_reserve){
+        }else if(id == R.id.nav_appointment){
             fm.popBackStackImmediate();
             ft = fm.beginTransaction();
+            ft.replace(R.id.fragment_container, af).commit();
+        }else if(id == R.id.nav_reserve){
+            fm.popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE);
+            ft = fm.beginTransaction();
             ft.replace(R.id.fragment_container, rif).commit();
+        }else if(id == R.id.nav_logout){
+            Intent intent = new Intent(this, LoginActivity.class);
+            this.startActivity(intent);
+            this.finish();
         }
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);

@@ -1,57 +1,35 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:orientation="vertical" android:layout_width="match_parent"
-    android:layout_height="match_parent">
+<android.support.v7.widget.CardView
+    xmlns:card_view="http://schemas.android.com/apk/res-auto"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/card_view"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    card_view:cardCornerRadius="4dp"
+    android:layout_marginTop="20dp"
+    android:layout_marginLeft="20dp"
+    android:layout_marginRight="20dp"
+    android:padding="10dp"
+    android:elevation="10dp">
 
     <LinearLayout
-        android:orientation="horizontal"
+        android:orientation="vertical"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="match_parent">
 
-        <LinearLayout
-            android:orientation="vertical"
-            android:layout_width="0dp"
+        <com.android.volley.toolbox.NetworkImageView
+            android:id="@+id/opt_shop_image"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:layout_marginRight="10dp"
-            android:gravity="center">
-
-            <com.android.volley.toolbox.NetworkImageView
-                android:id="@+id/opt_shop_image"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:adjustViewBounds="true"
-                android:src="@mipmap/ic_launcher"/>
-            <TextView
-                android:id="@+id/opt_shop_name"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:padding="10dp"
-                android:text="Sample Name"
-                android:textAppearance="?android:attr/textAppearanceLarge"/>
-        </LinearLayout>
-
-        <LinearLayout
-            android:orientation="vertical"
-            android:layout_width="0dp"
+            android:adjustViewBounds="true"
+            android:src="@mipmap/ic_launcher"/>
+        <TextView
+            android:id="@+id/opt_shop_name"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:layout_marginLeft="10dp"
-            android:gravity="center">
+            android:padding="10dp"
+            android:text="Sample Name"
+            android:textAppearance="?android:attr/textAppearanceLarge"/>
 
-            <com.android.volley.toolbox.NetworkImageView
-                android:id="@+id/opt_shop_image2"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:adjustViewBounds="true"
-                android:src="@mipmap/ic_launcher"/>
-            <TextView
-                android:id="@+id/opt_shop_name2"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:padding="10dp"
-                android:text="Sample Name"
-                android:textAppearance="?android:attr/textAppearanceLarge"/>
-        </LinearLayout>
     </LinearLayout>
-</LinearLayout>
+</android.support.v7.widget.CardView>
